@@ -1,4 +1,4 @@
-#Requires –Version 4
+#Requires â€“Version 4
 #Requires -RunAsAdministrator 
 
 $cred = Get-Credential
@@ -7,7 +7,8 @@ $adfs = Read-Host -Prompt 'Please type in your adfs endpoint hostname (i.e. adfs
 $formatenumerationlimit = -1
 $dc = $env:Logonserver -replace "\\", ""
 $s = New-PSSession -ComputerName $dc -Credential $cred
-Import-PSSession -Session $s -Module activedirectory -Prefix dc
+Invoke-Command -Session $s {Import-Module ActiveDirectory}
+Import-PSSession -Session $s -Module ActiveDirectory -Prefix dc
 $services = "adfssrv","MSSQL$MICROSOFT%"
 $servers = Get-dcADComputer -LDAPFilter "(&(objectcategory=computer)(OperatingSystem=*server*))"
 $adfsservers = ForEach-Object {Get-WmiObject Win32_Service -ComputerName $servers.dnshostname -Filter "Name Like 'adfssrv'" -Credential $cred | select-object PSComputerName -ExpandProperty PSComputerName}
