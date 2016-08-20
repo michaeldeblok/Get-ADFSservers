@@ -56,11 +56,10 @@ $token = [Xml](Test-AdfsServerToken -federationServer $adfs -appliesTo urn:feder
 $token.Envelope.Body.RequestSecurityTokenResponse.RequestedSecurityToken.Assertion.AttributeStatement.Attribute | ft
 Remove-Hostnames $adfs
 }
-Stop-TranScript
-
 
 Write-Host -foregroundcolor "Green" Starting services marked as AUTO that are now marked as STOPPED
 icm -Session $adfssessions -ScriptBlock {get-wmiobject win32_service | where-object {$_.Startmode -eq "auto" -and $_.State -ne "running"}| Start-Service -Verbose}
 
 
 Get-PSSession | Remove-PSSession
+Stop-TranScript
