@@ -11,7 +11,15 @@ Invoke-Command -Session $s {Import-Module ActiveDirectory}
 Import-PSSession -Session $s -Module ActiveDirectory -Prefix dc
 $services = "adfssrv","MSSQL$MICROSOFT%"
 $servers = Get-dcADComputer -LDAPFilter "(&(objectcategory=computer)(OperatingSystem=*server*))"
-$adfsservers = ForEach-Object {Get-WmiObject Win32_Service -ComputerName $servers.dnshostname -Filter "Name Like 'adfssrv'" -Credential $cred | select-object PSComputerName -ExpandProperty PSComputerName}
+$value = 1
+if ($servers.count -lt "100") {$adfsservers = ForEach-Object {Get-WmiObject Win32_Service -ComputerName $servers.dnshostname -Filter "Name Like 'adfssrv'" -Credential $cred | select-object PSComputerName -ExpandProperty PSComputerName}}`
+else {$adfsservers = @()
+do {
+$input = (Read-Host "Please enter ADFS server #$value (enter if last one)")
+if ($input -ne '') {$adfsservers += $input}
+$value++
+}
+until ($input -eq '')}
 $ips = $adfsservers | foreach {Resolve-DNSName $_ | Select-Object IPAddress -ExpandProperty IPAddress}
 $adfssrvs = $adfsservers | ForEach {Get-dcADComputer "$_" | Select-Object DnsHostName -ExpandProperty DnsHostName}
 $adfssessions = New-PSSession -ComputerName $adfssrvs -Credential $cred
